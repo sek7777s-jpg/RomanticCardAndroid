@@ -1,3 +1,4 @@
+
 name: Build Romantic Card APK
 
 on:
@@ -10,15 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Extract Android project
-        run: |
-          mkdir -p project
-          unzip -o RomanticCardAndroid_v1.zip -d project
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -27,9 +22,11 @@ jobs:
           java-version: '17'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools'
 
-      - name: Install Android SDK
+      - name: Install Android SDK packages
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
 
       - name: Set up Gradle
@@ -37,7 +34,12 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build APK
+      - name: Extract Android project
+        run: |
+          mkdir -p project
+          unzip -o RomanticCardAndroid_v1.zip -d project
+
+      - name: Build debug APK
         run: gradle --no-daemon assembleDebug
         working-directory: project/RomanticCardAndroid
 
@@ -46,3 +48,4 @@ jobs:
         with:
           name: Romantic-Card-APK
           path: project/RomanticCardAndroid/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
